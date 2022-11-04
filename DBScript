@@ -1,0 +1,110 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema teachersdb
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema teachersdb
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `teachersdb` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ;
+-- -----------------------------------------------------
+-- Schema new_schema1
+-- -----------------------------------------------------
+USE `teachersdb` ;
+
+-- -----------------------------------------------------
+-- Table `teachersdb`.`TEACHERS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teachersdb`.`TEACHERS` (
+  `ID` INT NOT NULL AUTO_INCREMENT COMMENT 'Surrogate key',
+  `LASTNAME` VARCHAR(45) NOT NULL,
+  `FIRSTNAME` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `LASTNAME_IDX` (`LASTNAME` ASC) INVISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teachersdb`.`STUDENTS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teachersdb`.`STUDENTS` (
+  `ID` INT NOT NULL AUTO_INCREMENT,
+  `LASTNAME` VARCHAR(45) NOT NULL,
+  `FIRSTNAME` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `LASTNAME_IDX` (`LASTNAME` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `teachersdb`.`COURSES`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teachersdb`.`COURSES` (
+  `ID` INT NOT NULL AUTO_INCREMENT,
+  `DESCRIPTION` VARCHAR(45) CHARACTER SET 'cp850' NOT NULL,
+  `TEACHERID` INT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `idx_teacherid` (`TEACHERID` ASC) INVISIBLE,
+  CONSTRAINT `fk_teacherid`
+    FOREIGN KEY (`TEACHERID`)
+    REFERENCES `teachersdb`.`TEACHERS` (`ID`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+PACK_KEYS = DEFAULT
+ROW_FORMAT = DEFAULT
+KEY_BLOCK_SIZE = 1;
+
+
+-- -----------------------------------------------------
+-- Table `teachersdb`.`COURSES_STUDENTS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `teachersdb`.`COURSES_STUDENTS` (
+  `COURSEID` INT NOT NULL,
+  `STUDENTID` INT NOT NULL,
+  PRIMARY KEY (`COURSEID`, `STUDENTID`),
+  INDEX `fk_STUDENTID_idx` (`STUDENTID` ASC) VISIBLE,
+  CONSTRAINT `fk1_courseid`
+    FOREIGN KEY (`COURSEID`)
+    REFERENCES `teachersdb`.`COURSES` (`ID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk1_studentid`
+    FOREIGN KEY (`STUDENTID`)
+    REFERENCES `teachersdb`.`STUDENTS` (`ID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+USE `teachersdb`;
+
+DELIMITER $$
+USE `teachersdb`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `teachersdb`.`COURSES_AFTER_UPDATE` AFTER UPDATE ON `COURSES` FOR EACH ROW
+BEGIN
+
+END
+$$
+
+USE `teachersdb`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `teachersdb`.`COURSES_AFTER_DELETE` AFTER DELETE ON `COURSES` FOR EACH ROW
+BEGIN
+
+END
+$$
+
+
+DELIMITER ;
+CREATE USER 'agg' IDENTIFIED BY 'am3037';
+
+GRANT ALL ON `teachersdb`.* TO 'agg';
+GRANT ALL ON `new_schema1`.* TO 'agg';
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
